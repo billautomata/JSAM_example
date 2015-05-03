@@ -71,7 +71,7 @@ function view_controller(div_id){
         .attr('fill', 'green')
         .attr('stroke', 'none')
 
-      let bar_idx = svgbars
+      var bar_idx = svgbars
       bar.on('mouseover', function () {
         console.log(bar_idx)
       })

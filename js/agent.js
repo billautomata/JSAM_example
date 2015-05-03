@@ -148,10 +148,10 @@ function agent(opts) {
     // create osc + gain banks
     for (var idx = 0; idx < n_osc; idx++) {
 
-      let local_osc = context.createOscillator()
+      var local_osc = context.createOscillator()
       local_osc.frequency.value = (idx * spread) + initialFreq
 
-      let local_gain = context.createGain()
+      var local_gain = context.createGain()
       local_gain.gain.value = 1.0 / (n_osc)
 
       local_osc.connect(local_gain)
