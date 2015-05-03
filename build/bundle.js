@@ -511,7 +511,7 @@ window.onload = function () {
   alice.connect(bob)
   bob.connect(alice)
 
-  setTimeout(draw, 500)
+  setTimeout(draw, 1500)
 
   function draw() {
 
