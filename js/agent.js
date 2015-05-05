@@ -2,7 +2,7 @@
 
 module.exports.agent = agent
 
-var BYTES_TO_ENCODE = 6
+var BYTES_TO_ENCODE = 5
 
 function agent(opts) {
 
@@ -46,6 +46,11 @@ function agent(opts) {
 
   // var n_osc = 44
   var n_osc = (8*BYTES_TO_ENCODE) + 3
+
+  if(BYTES_TO_ENCODE === 1){
+    n_osc = 11
+  }
+
   var freqRange = 20000
   var spread = (freqRange / n_osc)
   var initialFreq = 150

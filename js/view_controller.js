@@ -110,18 +110,10 @@ function view_controller(div_id) {
       agent.set_volume(v / 100.0)
     })
 
-    // rx buffer
-    var div_rx_buffer_parent = parent.append('div')
-      .attr('class', 'col-md-12')
-
-    div_rx_buffer_parent.append('h4').attr('class', 'text-left').html('rx buffer')
-
-    div_rx_buffer = div_rx_buffer_parent.append('pre').attr('class', 'rx_buffer')
-
     // message to send
     var parent_message_to_send = parent.append('div').attr('class', 'col-md-12')
 
-    parent_message_to_send.append('div').attr('class', 'text-center').html('sending this message:')
+    parent_message_to_send.append('h4').attr('class', 'text-center').html('sending this message')
 
     var input_field = parent_message_to_send.append('input')
       .attr('type', 'text')
@@ -137,6 +129,16 @@ function view_controller(div_id) {
 
       agent.set_message(v)
     })
+
+    // rx buffer
+    var div_rx_buffer_parent = parent.append('div')
+      .attr('class', 'col-md-12')
+
+    div_rx_buffer_parent.append('h4').attr('class', 'text-center').html('rx buffer')
+
+    div_rx_buffer = div_rx_buffer_parent.append('pre').attr('class', 'rx_buffer')
+
+
 
     //
 
