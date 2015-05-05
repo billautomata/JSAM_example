@@ -1,7 +1,11 @@
 window.onload = function () {
-  "use strict";
+  // "use strict";
 
-  var BAUD_RATE = 40
+  window.console.time = function(){};  window.console.timeEnd = function(){}
+
+  var DO_DRAW = true
+
+  var BAUD_RATE = 24
   var parent_baud_rate = d3.select('div#baud_rate').append('div').attr('class','col-md-8 col-md-offset-2')
 
   parent_baud_rate.append('h4').attr('class', 'text-center').html('modem speed')
@@ -17,14 +21,16 @@ window.onload = function () {
 
     BAUD_RATE = baud_scale(v)
 
-  })
+    window.alice.reset_baud_count()
+    window.bob.reset_baud_count()
 
+  })
 
   var udp_mode = true
 
   console.log('main.js / window.onload anonymous function')
 
-  var message_to_send = 'this is a test that the modulation / demodulation works correctly'
+  var message_to_send = 'abcdefghijklmnopqrstuvwxyz'
   var output_msg = ''
 
   var Agent = require('./agent.js')
@@ -42,8 +48,8 @@ window.onload = function () {
     message: message_to_send
   })
 
-  var display = View_Controller.view_controller('alice_modem')
-  display.connect(alice)
+  var display_alice = View_Controller.view_controller('alice_modem')
+  display_alice.connect(alice)
 
   var display_bob = View_Controller.view_controller('bob_modem')
   display_bob.connect(bob)
@@ -55,11 +61,17 @@ window.onload = function () {
 
   function draw() {
 
-    var o = alice.tick()
+    console.time('test')
+    alice.tick()
     bob.tick()
+    console.timeEnd('test')
 
-    display.tick()
-    display_bob.tick()
+    // if(){
+      console.time('display')
+      display_alice.tick(DO_DRAW)
+      display_bob.tick(DO_DRAW)
+      console.timeEnd('display')
+    // }
 
     setTimeout(draw, BAUD_RATE)
     // window.requestAnimationFrame(draw);

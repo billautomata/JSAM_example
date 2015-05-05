@@ -2,6 +2,9 @@
 
 module.exports.agent = agent
 
+var BYTES_TO_ENCODE = 5
+
+
 
 function agent(opts) {
 
@@ -39,11 +42,12 @@ function agent(opts) {
 
   var osc_bank = []
   var gain_bank = []
+  var filter_bank = []
 
   var master_gain
 
-  var n_osc = 10
-  var freqRange = 2500
+  var n_osc = 44
+  var freqRange = 20000
   var spread = (freqRange / n_osc)
   var initialFreq = 200
 
@@ -67,7 +71,7 @@ function agent(opts) {
 
         register_peak_ranges()
 
-        if (grouped_peak_ranges.length === 10) {
+        if (grouped_peak_ranges.length === n_osc) {
           CURRENT_STATE = 1
         }
 
@@ -84,22 +88,31 @@ function agent(opts) {
       } else if (CURRENT_STATE === 2) {
 
         // encode byte
-        var byte_to_send = MESSAGE[MESSAGE_IDX].charCodeAt(0)
-        encode_byte(byte_to_send)
+        // var byte_to_send = MESSAGE[MESSAGE_IDX].charCodeAt(0)
+        // encode_byte(byte_to_send)
+
+        // encode byte array
+        var substring = MESSAGE.substr(MESSAGE_IDX,BYTES_TO_ENCODE)
+        encode_string(substring)
 
         if (look_for_signaling()) {
 
           // read byte
-          RX_BUFFER += String.fromCharCode(read_byte_from_signal())
+          //RX_BUFFER += String.fromCharCode(read_byte_from_signal())
+          RX_BUFFER += read_byte_array_from_signal(BYTES_TO_ENCODE)
+          // console.log(RX_BUFFER)
 
           if (type === 'client') {
             ret_obj.new_data = true
-            ret_obj.data = String.fromCharCode(read_byte_from_signal())
+            ret_obj.data = String.fromCharCode(read_byte_from_signal(BYTES_TO_ENCODE))
           }
 
           // increment byte to encode
-          MESSAGE_IDX += 1
-          MESSAGE_IDX = MESSAGE_IDX % MESSAGE.length
+          MESSAGE_IDX += BYTES_TO_ENCODE
+          if(MESSAGE_IDX > MESSAGE.length){
+            MESSAGE_IDX = 0
+          }
+          // MESSAGE_IDX = MESSAGE_IDX % MESSAGE.length
 
           perform_signaling()
 
@@ -152,9 +165,18 @@ function agent(opts) {
       local_osc.frequency.value = (idx * spread) + initialFreq
 
       var local_gain = context.createGain()
-      local_gain.gain.value = 1.0 / (n_osc)
+      local_gain.gain.value = 1.0 / (n_osc-1)
+
+      // var local_filter = context.createBiquadFilter()
+      // local_filter.type = 'bandpass'
+      // local_filter.frequency.value = (idx * spread) + initialFreq
+      // local_filter.Q.value = 1.0
+      //
+      // window.d = local_filter
 
       local_osc.connect(local_gain)
+
+      // local_gain.connect(local_filter)
 
       local_gain.connect(localAnalyser)
       local_gain.connect(master_gain)
@@ -164,6 +186,7 @@ function agent(opts) {
 
       osc_bank.push(local_osc)
       gain_bank.push(local_gain)
+      // filter_bank.push(local_filter)
 
     }
 
@@ -185,6 +208,12 @@ function agent(opts) {
     other_gain_bank.forEach(function (gainNode) {
       gainNode.connect(analyser)
     })
+
+    // var other_filter_bank = other_agent.get_filter_bank()
+    //
+    // other_filter_bank.forEach(function(filterNode){
+    //   filterNode.connect(analyser)
+    // })
 
     getBuffer()
 
@@ -221,6 +250,11 @@ function agent(opts) {
     return gain_bank
   }
 
+  function get_filter_bank() {
+    return filter_bank
+  }
+
+
   function get_analyser() {
     return analyser
   }
@@ -229,6 +263,7 @@ function agent(opts) {
   function read_byte_from_signal() {
 
     var ranges = validate_ranges()
+    // console.log(ranges)
 
     var binary_string = ''
     for (var i = 0; i < 8; i++) {
@@ -240,6 +275,39 @@ function agent(opts) {
     }
 
     return parseInt(binary_string, 2)
+
+  }
+
+
+  function read_byte_array_from_signal(byte_count) {
+
+    var return_array = ''
+
+    var ranges = validate_ranges()
+    // console.log(ranges)
+
+    for(var byte_count_idx = 0; byte_count_idx < byte_count; byte_count_idx++){
+
+      var offset = 0
+      if(byte_count_idx > 0){
+        offset += 2 + (byte_count_idx*8)
+      }
+
+      var binary_string = ''
+      for (var i = 0+offset; i < 8+offset; i++) {
+        if (ranges[i]) {
+          binary_string += '1'
+        } else {
+          binary_string += '0'
+        }
+      }
+
+      var byte = parseInt(binary_string, 2)
+      return_array += String.fromCharCode(byte)
+    }
+
+    // console.log(return_array)
+    return return_array
 
   }
 
@@ -398,6 +466,41 @@ function agent(opts) {
 
   }
 
+  function encode_string(string){
+
+    var bytes = string.split('')
+
+    while(bytes.length < BYTES_TO_ENCODE){
+      bytes.push(' ')
+    }
+
+    bytes.forEach(function(byte,byte_idx){
+
+      var offset = (byte_idx * 8) + 2
+      if(byte_idx === 0){
+        offset = 0
+      }
+
+      byte = byte.charCodeAt(0)
+
+      var chars = get_encoded_byte_array(byte)
+
+      // console.log(chars)
+
+      chars.forEach(function (c, idx) {
+        if (c === '0') {
+          set_gain(idx+offset, 0)
+        } else {
+          set_gain(idx+offset, 1 / n_osc)
+        }
+      })
+
+    })
+
+
+
+  }
+
   function perform_signaling() {
     flip_flop = !flip_flop
     if (flip_flop) {
@@ -432,6 +535,11 @@ function agent(opts) {
     }
   }
 
+  function reset_baud_count(){
+    RX_BUFFER = ''
+    CONNECTED_AT = Date.now()
+  }
+
   return {
     check_peak_ranges: check_peak_ranges,
     connect: connect,
@@ -439,6 +547,7 @@ function agent(opts) {
     getBuffer: getBuffer,
     get_analyser: get_analyser,
     get_encoded_byte_array: get_encoded_byte_array,
+    get_filter_bank: get_filter_bank,
     get_gain_bank: get_gain_bank,
     get_groups: get_groups,
     get_local_frequency_data_buffer: get_local_frequency_data_buffer,
@@ -450,6 +559,7 @@ function agent(opts) {
     set_message: set_message,
     set_volume: set_volume,
     read_byte_from_signal: read_byte_from_signal,
+    reset_baud_count: reset_baud_count,
     tick: tick,
     validate_ranges: validate_ranges,
   };
