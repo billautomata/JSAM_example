@@ -194,12 +194,14 @@ function agent(opts) {
 
     }
 
-    analyser.fftSize = 1024
+    var fftSize = 512
+
+    analyser.fftSize = fftSize
     analyser.smoothingTimeConstant = 0
     bufferLength = analyser.frequencyBinCount
     analyserDataArray = new Uint8Array(bufferLength)
 
-    localAnalyser.fftSize = 1024
+    localAnalyser.fftSize = fftSize
     localAnalyser.smoothingTimeConstant = 0
     localAnalyserDataArray = new Uint8Array(bufferLength)
 

@@ -1,6 +1,17 @@
 ##todo
 
+- [ ] examine higher fft rates
+- [ ] examine 
 - [ ] automatic timeout/reconnect
+- [ ] multiple streams on a single channel
+- [ ] broadcast mode
+- [ ] passive receiver mode
+  -[ ] hardcode the bands
+- [ ] ascii only mode
+- [ ] slow scan TV mode
+- [ ]
+- [x] variable encoding rate
+  - [ ] extend to the bit level
 
 #JSAM protocol spec
 

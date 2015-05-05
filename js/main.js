@@ -5,15 +5,15 @@ window.onload = function () {
 
   var DO_DRAW = true
 
-  var BAUD_RATE = 24
+  var BAUD_RATE = 36
   var parent_baud_rate = d3.select('div#baud_rate').append('div').attr('class','col-md-8 col-md-offset-2')
 
   parent_baud_rate.append('h4').attr('class', 'text-center').html('modem speed')
-  var baud_scale = d3.scale.linear().domain([100,0]).range([16,200])
+  var baud_scale = d3.scale.linear().domain([100,0]).range([12,800])
   var baud_slider = parent_baud_rate.append('input').attr('type','range')
     .attr('min', 0.0)
     .attr('max', 100.0)
-    .attr('value', 80.0)
+    .attr('value', baud_scale.invert(36))
 
     baud_slider.on('input', function(){
     // console.log(d3.event)
@@ -67,10 +67,10 @@ window.onload = function () {
     console.timeEnd('test')
 
     // if(){
-      console.time('display')
+      // console.time('display')
       display_alice.tick(DO_DRAW)
       display_bob.tick(DO_DRAW)
-      console.timeEnd('display')
+      // console.timeEnd('display')
     // }
 
     setTimeout(draw, BAUD_RATE)
