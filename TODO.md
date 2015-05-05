@@ -1,17 +1,32 @@
 ##todo
 
-- [ ] examine higher fft rates
-- [ ] examine 
+- [x] testing routine
+- [ ] simulate interference
+- [ ] verify tolerances
+
+- [x] examine higher/lower fft rates
+
+- [ ] examine uneven spread
+
+- [ ] load with configuration json
+
 - [ ] automatic timeout/reconnect
 - [ ] multiple streams on a single channel
 - [ ] broadcast mode
 - [ ] passive receiver mode
   -[ ] hardcode the bands
+  -[ ] predict bands
 - [ ] ascii only mode
-- [ ] slow scan TV mode
+- [ ] image transmission mode (PNG/JPEG/GIF)
 - [ ]
 - [x] variable encoding rate
   - [ ] extend to the bit level
+
+
+##bugs
+
+- [ ] one byte doesn't seem to work
+
 
 #JSAM protocol spec
 

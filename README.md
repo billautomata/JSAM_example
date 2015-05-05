@@ -11,3 +11,4 @@ The custom AM algorithm allows for:
     * one to many
     * many to many
     * one to one
+* benchmarking suite to suggest settings

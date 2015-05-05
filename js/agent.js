@@ -2,7 +2,7 @@
 
 module.exports.agent = agent
 
-var BYTES_TO_ENCODE = 5
+var BYTES_TO_ENCODE = 4
 
 function agent(opts) {
 
@@ -16,6 +16,13 @@ function agent(opts) {
 
   var MESSAGE
   var MESSAGE_IDX = 0
+
+  var LAST_SENT_MESSAGE = ''
+  var CURRENT_ENCODED_MESSAGE = ''
+
+  var LATEST_RX_BLOB = ''
+  var PREV_RX_BLOB = ''
+
   var RX_BUFFER = ''
   var CONNECTED_AT
 
@@ -48,12 +55,12 @@ function agent(opts) {
   var n_osc = (8*BYTES_TO_ENCODE) + 3
 
   if(BYTES_TO_ENCODE === 1){
-    n_osc = 11
+    n_osc = 14
   }
 
   var freqRange = 20000
   var spread = (freqRange / n_osc)
-  var initialFreq = 150
+  var initialFreq = 800
 
   var CURRENT_STATE = -1
 
@@ -103,7 +110,11 @@ function agent(opts) {
 
           // read byte
           //RX_BUFFER += String.fromCharCode(read_byte_from_signal())
-          RX_BUFFER += read_byte_array_from_signal(BYTES_TO_ENCODE)
+          var bytes_on_wire_string = read_byte_array_from_signal(BYTES_TO_ENCODE)
+
+          PREV_RX_BLOB = LATEST_RX_BLOB
+          LATEST_RX_BLOB = bytes_on_wire_string
+          RX_BUFFER += bytes_on_wire_string
           // console.log(RX_BUFFER)
 
           if (type === 'client') {
@@ -113,7 +124,7 @@ function agent(opts) {
 
           // increment byte to encode
           MESSAGE_IDX += BYTES_TO_ENCODE
-          if(MESSAGE_IDX > MESSAGE.length){
+          if(MESSAGE_IDX >= MESSAGE.length){
             MESSAGE_IDX = 0
           }
           // MESSAGE_IDX = MESSAGE_IDX % MESSAGE.length
@@ -466,7 +477,7 @@ function agent(opts) {
       if (c === '0') {
         set_gain(idx, 0)
       } else {
-        set_gain(idx, 1 / n_osc)
+        set_gain(idx, 1 / (n_osc-2))
       }
     })
 
@@ -475,10 +486,14 @@ function agent(opts) {
   function encode_string(string){
 
     var bytes = string.split('')
+    // console.log(string,bytes)
 
     while(bytes.length < BYTES_TO_ENCODE){
-      bytes.push(' ')
+      bytes.push('+')
     }
+
+    LAST_SENT_MESSAGE = CURRENT_ENCODED_MESSAGE
+    CURRENT_ENCODED_MESSAGE = bytes.join('')
 
     bytes.forEach(function(byte,byte_idx){
 
@@ -537,7 +552,11 @@ function agent(opts) {
       SYNC_COUNT: SYNC_COUNT,
       MESSAGE: MESSAGE,
       MESSAGE_IDX: MESSAGE_IDX,
-      CONNECTED_AT: CONNECTED_AT
+      CONNECTED_AT: CONNECTED_AT,
+      CURRENT_ENCODED_MESSAGE: CURRENT_ENCODED_MESSAGE,
+      LAST_SENT_MESSAGE: LAST_SENT_MESSAGE,
+      LATEST_RX_BLOB: LATEST_RX_BLOB,
+      PREV_RX_BLOB: PREV_RX_BLOB
     }
   }
 
@@ -568,6 +587,7 @@ function agent(opts) {
     reset_baud_count: reset_baud_count,
     tick: tick,
     validate_ranges: validate_ranges,
+    perform_signaling: perform_signaling
   };
 
 }
