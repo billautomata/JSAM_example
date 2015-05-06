@@ -3,6 +3,8 @@
 - [x] testing routine
 - [ ] simulate interference
 - [ ] verify tolerances
+- [ ] delay signaling changes
+- [ ] error rate calculation
 
 - [x] examine higher/lower fft rates
 
@@ -13,6 +15,9 @@
 - [ ] automatic timeout/reconnect
 - [ ] multiple streams on a single channel
 - [ ] broadcast mode
+
+
+
 - [ ] passive receiver mode
   -[ ] hardcode the bands
   -[ ] predict bands
@@ -21,6 +26,10 @@
 - [ ]
 - [x] variable encoding rate
   - [ ] extend to the bit level
+
+
+## code related
+- [ ] refactor the state machine into modules
 
 
 ##bugs

@@ -5,7 +5,7 @@ window.onload = function () {
 
   var DO_DRAW = true
 
-  var BAUD_RATE = 1000
+  var BAUD_RATE = 100
   var parent_baud_rate = d3.select('div#baud_rate').append('div').attr('class','col-md-8 col-md-offset-2')
 
   parent_baud_rate.append('h4').attr('class', 'text-center').html('modem speed')
