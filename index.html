@@ -6,7 +6,7 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
   <title></title>
   <meta name="description" content="">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
 
   <link rel="stylesheet" href="css/bootstrap.min.css">
   <link rel="stylesheet" href="css/bootstrap-theme.min.css">
@@ -26,17 +26,17 @@
 
 <body>
 
-
-
-  <div id='container' class='row'>
-    <div class='col-md-12' id='baud_rate'></div>
-    <div class='col-md-12'>
-      <div class='col-md-6' id='alice_modem'></div>
-      <div class='col-md-6' id='bob_modem'></div>
+  <div class='row'>
+    <div id='container' class='col-md-12'>
+      <div id='mobile_begin' class='col-xs-12 btn btn-primary'>Mobile Begin</div>
+      <div class='col-md-12' id='baud_rate'></div>
+      <div class='col-md-12'>
+        <div class='col-md-6' id='alice_modem'></div>
+        <div class='col-md-6' id='bob_modem'></div>
+      </div>
     </div>
   </div>
 
-  <div class='col-md-12'>This sadly does not work on mobile right now =\</div>
 </body>
 
 <script src="js/vendor/jquery-1.11.2.min.js"></script>
@@ -45,6 +45,13 @@
 <script>console.log(Date.now())</script>
 
 <script type='text/javascript' src='build/bundle.js'></script>
-<script src='//localhost:9000/livereload.js'></script>
+<script>
+
+  if(window.location.hostname.indexOf('git') === -1){
+    console.log('injecting livereload')
+    document.write('<script src="//192.168.0.100:9000/livereload.js"><\/script>')
+  }
+
+</script>
 
 </html>

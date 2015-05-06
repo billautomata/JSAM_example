@@ -1,4 +1,4 @@
-## one-way modes
+## async modes
 
 ### constant broadcast mode
 * `STATE A` `encoding`
@@ -13,7 +13,8 @@ Agent does not listen for any signals.
 This mode is for listening to a constant broadcast mode transmitter.
 
 
-## two-way modes
+## sync modes
+
 
 ### triggered broadcast mode
 * `STATE A` `idle` `listening for connection`
@@ -41,5 +42,4 @@ This mode is for listening to a constant broadcast mode transmitter.
 
 ### mutual stepped listen mode (active)
 
-
---[] error checked
+### error checked mode

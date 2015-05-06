@@ -6,6 +6,10 @@
 - [ ] delay signaling changes
 - [ ] error rate calculation
 
+- [ ] generalize the IO
+  - [ ] have multiple layers
+  - [ ] AJAX over radio
+
 - [x] examine higher/lower fft rates
 
 - [ ] examine uneven spread
@@ -15,7 +19,7 @@
 - [ ] automatic timeout/reconnect
 - [ ] multiple streams on a single channel
 - [ ] broadcast mode
-
+- [ ] bbs
 
 
 - [ ] passive receiver mode
