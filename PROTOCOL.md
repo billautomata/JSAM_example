@@ -1,45 +1,45 @@
-## one-way modes
+## async modes
 
-### broadcast mode (passive)
-* `STATE A`
-  * agent broadcasts and performs signaling at a constant rate.  
-
+### constant broadcast mode
+* `STATE A` `encoding`
+  * agent broadcasts and performs signaling at a constant rate  
 Agent does not listen for any signals.
 
-It is up to the client to configure the frequency bands to be read to decode the signal.
 
-### listen mode (passive)
-`STATE A` Agent polls for signaling and decodes bytes as they arrive.
+### passive listen mode
+* `STATE A` `decoding`
+  * agent polls for signaling and decodes bytes as they arrive
 
-Agent does not broadcast any signals.
+This mode is for listening to a constant broadcast mode transmitter.
 
-## two-way modes
 
-### triggered broadcast mode (semi-passive)
-* `STATE A`
+## sync modes
+
+
+### triggered broadcast mode
+* `STATE A` `idle` `listening for connection`
   * agent broadcasts full gain on all frequencies
   * each tick
+    * agent listens for identifying bands on input
     * if agent hears client transmit on identifying bands
       * `GOTO` `STATE B`
-* `STATE B`
-  * agent broadcasts and performs signaling at a constant rate.  
+* `STATE B` `encoding`
+  * agent encodes bytes and performs signaling at a constant rate.  
 
 
-
-### triggered listen mode (semi-passive)
-* `STATE A`
+### triggered listen mode
+* `STATE A` `idle` `polling for signaling`
   * agent broadcasts full gain on all frequencies
   * each tick
     * agent polls for signaling and decodes bytes as they arrive
     * if agent finds signaling
       * agent zeros gain on all broadcast frequencies
       * `GOTO` `STATE B`
-* `STATE B`
+* `STATE B` `decoding`
   * agent polls for signaling and decodes bytes as they arrive
 
 ### mutual stepped broadcast mode (active)
 
 ### mutual stepped listen mode (active)
 
-
---[] error checked
+### error checked mode

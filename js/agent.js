@@ -9,10 +9,19 @@ function agent(opts) {
   (function setup_audio_context() {
     if (window.context === undefined) {
       console.log('creating new window.AudioContext()')
-      window.context = new window.AudioContext()
+
+      if(window.AudioConext === undefined){
+        window.context = new window.webkitAudioContext()
+      } else {
+        window.context = new window.AudioContext()
+      }
+
     }
     console.log('done.')
   })()
+
+  //
+  var ERROR_RATE
 
   var MESSAGE
   var MESSAGE_IDX = 0
@@ -60,7 +69,7 @@ function agent(opts) {
 
   var freqRange = 20000
   var spread = (freqRange / n_osc)
-  var initialFreq = 800
+  var initialFreq = 500
 
   var CURRENT_STATE = -1
 
@@ -82,8 +91,10 @@ function agent(opts) {
 
         register_peak_ranges()
 
-        if (grouped_peak_ranges.length === n_osc) {
-          CURRENT_STATE = 1
+        if(grouped_peak_ranges !== undefined){
+          if (grouped_peak_ranges.length === n_osc) {
+            CURRENT_STATE = 1
+          }
         }
 
       } else if (CURRENT_STATE === 1) {
@@ -129,7 +140,10 @@ function agent(opts) {
           }
           // MESSAGE_IDX = MESSAGE_IDX % MESSAGE.length
 
-          perform_signaling()
+          // setTimeout(function(){
+            perform_signaling()
+          // },2)
+
 
         }
 
@@ -197,7 +211,8 @@ function agent(opts) {
       local_gain.connect(master_gain)
       // local_gain.connect(context.destination)
 
-      local_osc.start()
+      local_osc.start(0)
+      // local_osc.noteOn(100)
 
       osc_bank.push(local_osc)
       gain_bank.push(local_gain)
