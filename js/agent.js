@@ -10,11 +10,26 @@ function agent(opts) {
     if (window.context === undefined) {
       console.log('creating new window.AudioContext()')
 
-      if(window.AudioConext === undefined){
-        window.context = new window.webkitAudioContext()
-      } else {
+      navigator.getMedia = (
+        navigator.getUserMedia ||
+        navigator.webkitGetUserMedia ||
+        navigator.mozGetUserMedia ||
+        navigator.msGetUserMedia
+      );
+
+      window.AudioContext = (
+        window.AudioContext ||
+        window.webkitAudioContext ||
+        window.mozAudioContext ||
+        window.msAudioContext
+      );
+
+
+      // if(window.AudioConext === undefined){
+      //   window.context = new window.webkitAudioContext()
+      // } else {
         window.context = new window.AudioContext()
-      }
+      // }
 
     }
     console.log('done.')
