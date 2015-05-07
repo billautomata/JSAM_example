@@ -1,7 +1,20 @@
 ##todo
 
-- [x] testing routine
+
+- [ ] extend to bit-level transfer
+- [ ] 
+
+- [x] byte verification routine
+
+
+
 - [ ] simulate interference
+- [ ] filter interference on microphone
+  - [ ] use neural networks
+
+
+
+
 - [ ] verify tolerances
 - [ ] delay signaling changes
 - [ ] error rate calculation
@@ -31,6 +44,8 @@
 - [x] variable encoding rate
   - [ ] extend to the bit level
 
+
+- [encode to tape example]
 
 ## code related
 - [ ] refactor the state machine into modules

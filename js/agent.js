@@ -2,9 +2,11 @@
 
 module.exports.agent = agent
 
-var BYTES_TO_ENCODE = 4
+var BYTES_TO_ENCODE = 1
 
 function agent(opts) {
+
+  var myAudio = document.querySelector('audio');
 
   (function setup_audio_context() {
     if (window.context === undefined) {
@@ -50,6 +52,8 @@ function agent(opts) {
   var RX_BUFFER = ''
   var CONNECTED_AT
 
+
+  var name
   var type
 
   var analyser = context.createAnalyser()
@@ -82,13 +86,15 @@ function agent(opts) {
     n_osc = 14
   }
 
-  var freqRange = 20000
+  var freqRange = 10000
   var spread = (freqRange / n_osc)
-  var initialFreq = 500
+  var initialFreq = 200
 
   var CURRENT_STATE = -1
 
   function tick() {
+
+    console.log(name,CURRENT_STATE)
 
     var ret_obj = {
       new_data: false,
@@ -170,7 +176,6 @@ function agent(opts) {
 
   }
 
-
   function look_for_signaling() {
 
     var valid_ranges = validate_ranges()
@@ -194,6 +199,67 @@ function agent(opts) {
   }
 
   function init(opts) {
+
+    name = opts.name
+
+    if(opts.type === 'mic'){
+
+      navigator.getMedia = (
+        navigator.getUserMedia ||
+        navigator.webkitGetUserMedia ||
+        navigator.mozGetUserMedia ||
+        navigator.msGetUserMedia
+      );
+
+      navigator.getMedia (
+            // constraints: audio and video for this app
+            {
+               audio: true,
+               video: false
+            },
+
+            // Success callback
+            function(stream) {
+              //  video.src = (window.URL && window.URL.createObjectURL(stream)) || stream;
+              //  video.onloadedmetadata = function(e) {
+              //     video.play();
+              //     video.muted = 'true';
+              //  };
+
+               // Create a MediaStreamAudioSourceNode
+               // Feed the HTMLMediaElement into it
+               var source = context.createMediaStreamSource(stream);
+               source.connect(analyser)
+               CURRENT_STATE = 0
+               console.log('done connecting ',name)
+                // Create a biquadfilter
+                // var biquadFilter = audioCtx.createBiquadFilter();
+                // biquadFilter.type = "lowshelf";
+                // biquadFilter.frequency.value = 1000;
+                // biquadFilter.gain.value = range.value;
+
+                // connect the AudioBufferSourceNode to the gainNode
+                // and the gainNode to the destination, so we can play the
+                // music and adjust the volume using the mouse cursor
+                // source.connect(biquadFilter);
+                // biquadFilter.connect(audioCtx.destination);
+
+                // Get new mouse pointer coordinates when mouse is moved
+                // then set new gain value
+
+                // range.oninput = function() {
+                //     biquadFilter.gain.value = range.value;
+                // }
+
+            },
+
+            // Error callback
+            function(err) {
+               console.log('The following gUM error occured: ' + err);
+            }
+         );
+
+    }
 
     master_gain = context.createGain()
     master_gain.gain.value = 0
@@ -360,7 +426,7 @@ function agent(opts) {
 
   function register_peak_ranges() {
 
-    console.log('registering peak ranges')
+    console.log('registering peak ranges ' + name)
 
     getBuffer()
     console.log(analyserDataArray)

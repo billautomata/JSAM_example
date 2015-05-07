@@ -1,11 +1,31 @@
 module.exports = function (grunt) {
 
+  grunt.loadNpmTasks('grunt-contrib-connect');
   grunt.loadNpmTasks('grunt-contrib-watch');
   grunt.loadNpmTasks('grunt-browserify')
 
   grunt.registerTask('default','watch')
 
   grunt.initConfig({
+
+    connect: {
+      server: {
+        options: {
+          port: 8000,
+          keepalive: true,
+          hostname: 'localhost',
+          protocol: 'https',
+          key: grunt.file.read('./livereload.key').toString(),
+          cert: grunt.file.read('./livereload.crt').toString(),
+          // onCreateServer: function(server, connect, options) {
+          //   var io = require('socket.io').listen(server);
+          //   io.sockets.on('connection', function(socket) {
+          //     // do something with socket
+          //   });
+          // }
+        }
+      }
+    },
 
     browserify: {
       main: {
@@ -29,7 +49,9 @@ module.exports = function (grunt) {
         tasks: ['browserify'],
         options: {
           livereload: {
-            port: 9000
+            port: 9000,
+            key: grunt.file.read('./livereload.key').toString(),
+            cert: grunt.file.read('./livereload.crt').toString(),
               // you can pass in any other options you'd like to the https server, as listed here: http://nodejs™.org/api/tls.html#tls_tls_createserver_options_secureconnectionlistener
           }
         },

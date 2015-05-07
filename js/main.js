@@ -1,8 +1,8 @@
 window.onload = function () {
-  // "use strict";
-
+  
   window.console.time = function () {};
-  window.console.timeEnd = function () {}
+  window.console.timeEnd = function () {};
+  window.console.log = function(){};
 
   var DO_DRAW = true
   window.BAUD_RATE = 300
@@ -22,6 +22,7 @@ window.onload = function () {
   }
 
   function init_routine() {
+
     var udp_mode = true
 
     console.log('main.js / init_routine()')
@@ -57,21 +58,25 @@ window.onload = function () {
 
     window.alice = Agent.agent()
     alice.init({
+      name: 'alice',
       type: 'client',
       message: 'I am alice listen to me send data using web audio api.'
     })
 
     window.bob = Agent.agent()
     bob.init({
+      name: 'bob',
       type: 'server',
       message: 'This be bob, listen to ME send data using the web audio api.'
     })
 
-    var display_alice = View_Controller.view_controller('alice_modem')
-    display_alice.connect(alice)
 
     var display_bob = View_Controller.view_controller('bob_modem')
     display_bob.connect(bob)
+
+    var display_alice = View_Controller.view_controller('alice_modem')
+    display_alice.connect(alice)
+
 
     alice.connect(bob)
     bob.connect(alice)
