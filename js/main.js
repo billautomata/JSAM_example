@@ -5,8 +5,7 @@ window.onload = function () {
   window.console.timeEnd = function () {}
 
   var DO_DRAW = true
-  var BAUD_RATE = 300
-
+  window.BAUD_RATE = 300
 
   console.log(window.screen.width)
 
@@ -21,9 +20,6 @@ window.onload = function () {
     d3.select('div#mobile_begin').remove()
     init_routine()
   }
-
-
-
 
   function init_routine() {
     var udp_mode = true
@@ -62,13 +58,13 @@ window.onload = function () {
     window.alice = Agent.agent()
     alice.init({
       type: 'client',
-      message: message_to_send
+      message: 'I am alice listen to me send data using web audio api.'
     })
 
     window.bob = Agent.agent()
     bob.init({
       type: 'server',
-      message: message_to_send
+      message: 'This be bob, listen to ME send data using the web audio api.'
     })
 
     var display_alice = View_Controller.view_controller('alice_modem')
