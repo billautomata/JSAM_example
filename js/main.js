@@ -1,13 +1,11 @@
 window.onload = function () {
-  
+
   window.console.time = function () {};
   window.console.timeEnd = function () {};
-  window.console.log = function(){};
+  // window.console.log = function(){};
 
   var DO_DRAW = true
   window.BAUD_RATE = 300
-
-  console.log(window.screen.width)
 
   if (window.screen.width < 400) {
     d3.select('div#mobile_begin').on('click', function () {
@@ -85,10 +83,15 @@ window.onload = function () {
 
     function draw() {
 
+      console.log('tick')
+
+
         console.time('test')
         alice.tick()
         bob.tick()
         console.timeEnd('test')
+
+      console.log('draw')
 
         display_alice.tick(DO_DRAW)
         display_bob.tick(DO_DRAW)
@@ -110,11 +113,10 @@ window.onload = function () {
         } else {
 
           console.log(bob_state.LATEST_RX_BLOB, alice_state.LAST_SENT_MESSAGE)
-
           console.log('err')
 
           setTimeout(function () {
-            bob.perform_signaling()
+            //bob.perform_signaling()
             setTimeout(draw, BAUD_RATE * 2)
           })
 

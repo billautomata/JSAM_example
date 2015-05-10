@@ -23,6 +23,7 @@ function view_controller(div_id) {
   var div_rx_buffer
   var div_baud_meter
   var bars = []
+  var circles = []
 
   var WIDTH = 1024
   var HEIGHT = 256
@@ -30,10 +31,14 @@ function view_controller(div_id) {
   var barWidth
   var bufferLength
 
+  var other_buffers
+
   // create svg
   function setup_svg() {
 
-    var state = agent.get_state()
+    console.log('calling setup_svg')
+
+    // var state = agent.get_state()
 
     WIDTH = bufferLength
     HEIGHT = WIDTH / 4
@@ -59,7 +64,6 @@ function view_controller(div_id) {
       .style('text-anchor', 'end')
       .attr('fill', 'rgba(0,0,0,0.1)')
 
-
     bars = []
     for (var svgbars = 0; svgbars < bufferLength; svgbars++) {
       var bar = svg.append('rect')
@@ -70,12 +74,20 @@ function view_controller(div_id) {
         .attr('fill', 'green')
         .attr('stroke', 'none')
 
+      var circle = svg.append('circle')
+        .attr('cx', barWidth * svgbars)
+        .attr('cy', 0)
+        .attr('r', barWidth)
+        .attr('fill', 'red')
+
+
       var bar_idx = svgbars
-      bar.on('mouseover', function () {
-        console.log(bar_idx)
-      })
+        // bar.on('mouseover', function () {
+        //   console.log(bar_idx)
+        // })
 
       bars.push(bar)
+      circles.push(circle)
     }
 
     // sync count
@@ -118,7 +130,7 @@ function view_controller(div_id) {
       .attr('type', 'text')
       .attr('class', 'msg_input')
 
-    input_field.node().value = state.MESSAGE
+    // input_field.node().value = state.MESSAGE
 
     input_field.on('keyup', function () {
       var v = input_field.node().value
@@ -137,45 +149,32 @@ function view_controller(div_id) {
 
     div_rx_buffer = div_rx_buffer_parent.append('pre').attr('class', 'rx_buffer')
 
-
-
-    //
-
   }
 
   function connect(remote_agent) {
     agent = remote_agent
-    bufferLength = remote_agent.get_state().buffer.length
+    other_buffers = remote_agent.get_buffers()
+    bufferLength = other_buffers.time.length
   }
 
   function tick(draw_bars) {
 
-    if (bars.length === 0) {
-      setup_svg()
-      return;
-    }
-
-    console.log('getting state')
-    var state = agent.get_state()
-
     if (draw_bars === true) {
-      var dataArray = state.buffer
+      var dataArray = other_buffers.freq
+      var dataArrayT = other_buffers.time
 
       for (var i = 0; i < bufferLength; i++) {
         bars[i].attr('height', (dataArray[i] / 255) * HEIGHT)
+        circles[i].attr('cy', (dataArrayT[i] / 255) * HEIGHT)
+
       }
 
     }
 
-    sync_indicator.html(state.SYNC_COUNT)
-    div_rx_buffer.html(state.RX_BUFFER)
-
-    var baud = 8 * (state.RX_BUFFER.length / ((Date.now() - state.CONNECTED_AT) / 1000.0))
-    div_baud_meter.html(baud.toFixed(2))
-
   }
 
   return {
+    setup_svg: setup_svg,
     tick: tick,
     connect: connect
   }

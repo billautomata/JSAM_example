@@ -4,57 +4,47 @@ module.exports.agent = agent
 
 var BYTES_TO_ENCODE = 1
 
-function agent(opts) {
+function agent() {
 
   var myAudio = document.querySelector('audio');
 
   (function setup_audio_context() {
     if (window.context === undefined) {
-      console.log('creating new window.AudioContext()')
 
-      navigator.getMedia = (
-        navigator.getUserMedia ||
-        navigator.webkitGetUserMedia ||
-        navigator.mozGetUserMedia ||
-        navigator.msGetUserMedia
-      );
+      console.log('creating new window.AudioContext()')
 
       window.AudioContext = (
         window.AudioContext ||
         window.webkitAudioContext ||
         window.mozAudioContext ||
         window.msAudioContext
-      );
+      )
 
-
-      // if(window.AudioConext === undefined){
-      //   window.context = new window.webkitAudioContext()
-      // } else {
-        window.context = new window.AudioContext()
-      // }
+      window.context = new window.AudioContext()
 
     }
-    console.log('done.')
   })()
 
-  //
   var ERROR_RATE
 
   var MESSAGE
   var MESSAGE_IDX = 0
 
+  // verification variables
   var LAST_SENT_MESSAGE = ''
   var CURRENT_ENCODED_MESSAGE = ''
 
   var LATEST_RX_BLOB = ''
   var PREV_RX_BLOB = ''
 
+  // stats variables
   var RX_BUFFER = ''
   var CONNECTED_AT
 
-
+  // options set by init(opts)
   var name
   var type
+
 
   var analyser = context.createAnalyser()
   var analyserDataArray // the buffer the analyser writes to
@@ -80,10 +70,10 @@ function agent(opts) {
   var master_gain
 
   // var n_osc = 44
-  var n_osc = (8*BYTES_TO_ENCODE) + 3
+  var n_osc = (8 * BYTES_TO_ENCODE) + 3
 
-  if(BYTES_TO_ENCODE === 1){
-    n_osc = 14
+  if (BYTES_TO_ENCODE === 1) {
+    n_osc = 11
   }
 
   var freqRange = 10000
@@ -92,9 +82,11 @@ function agent(opts) {
 
   var CURRENT_STATE = -1
 
+  function get_osc_bank() {}
+
   function tick() {
 
-    console.log(name,CURRENT_STATE)
+    console.log(name, CURRENT_STATE)
 
     var ret_obj = {
       new_data: false,
@@ -112,7 +104,7 @@ function agent(opts) {
 
         register_peak_ranges()
 
-        if(grouped_peak_ranges !== undefined){
+        if (grouped_peak_ranges !== undefined) {
           if (grouped_peak_ranges.length === n_osc) {
             CURRENT_STATE = 1
           }
@@ -135,7 +127,7 @@ function agent(opts) {
         // encode_byte(byte_to_send)
 
         // encode byte array
-        var substring = MESSAGE.substr(MESSAGE_IDX,BYTES_TO_ENCODE)
+        var substring = MESSAGE.substr(MESSAGE_IDX, BYTES_TO_ENCODE)
         encode_string(substring)
 
         if (look_for_signaling()) {
@@ -147,7 +139,7 @@ function agent(opts) {
           PREV_RX_BLOB = LATEST_RX_BLOB
           LATEST_RX_BLOB = bytes_on_wire_string
           RX_BUFFER += bytes_on_wire_string
-          // console.log(RX_BUFFER)
+            // console.log(RX_BUFFER)
 
           if (type === 'client') {
             ret_obj.new_data = true
@@ -156,14 +148,14 @@ function agent(opts) {
 
           // increment byte to encode
           MESSAGE_IDX += BYTES_TO_ENCODE
-          if(MESSAGE_IDX >= MESSAGE.length){
+          if (MESSAGE_IDX >= MESSAGE.length) {
             MESSAGE_IDX = 0
           }
           // MESSAGE_IDX = MESSAGE_IDX % MESSAGE.length
 
           // setTimeout(function(){
-            perform_signaling()
-          // },2)
+          perform_signaling()
+            // },2)
 
 
         }
@@ -179,6 +171,7 @@ function agent(opts) {
   function look_for_signaling() {
 
     var valid_ranges = validate_ranges()
+
     if (valid_ranges[8] === true && valid_ranges[9] === false) {
       current_high_channel = 8
     } else {
@@ -200,9 +193,14 @@ function agent(opts) {
 
   function init(opts) {
 
+    // options
+    // name - plaintext identifier for the modem
+    // type - used to invoke different state machines
+    //
+
     name = opts.name
 
-    if(opts.type === 'mic'){
+    if (opts.type === 'mic') {
 
       navigator.getMedia = (
         navigator.getUserMedia ||
@@ -211,53 +209,53 @@ function agent(opts) {
         navigator.msGetUserMedia
       );
 
-      navigator.getMedia (
-            // constraints: audio and video for this app
-            {
-               audio: true,
-               video: false
-            },
+      navigator.getMedia(
+        // constraints: audio and video for this app
+        {
+          audio: true,
+          video: false
+        },
 
-            // Success callback
-            function(stream) {
-              //  video.src = (window.URL && window.URL.createObjectURL(stream)) || stream;
-              //  video.onloadedmetadata = function(e) {
-              //     video.play();
-              //     video.muted = 'true';
-              //  };
+        // Success callback
+        function (stream) {
+          //  video.src = (window.URL && window.URL.createObjectURL(stream)) || stream;
+          //  video.onloadedmetadata = function(e) {
+          //     video.play();
+          //     video.muted = 'true';
+          //  };
 
-               // Create a MediaStreamAudioSourceNode
-               // Feed the HTMLMediaElement into it
-               var source = context.createMediaStreamSource(stream);
-               source.connect(analyser)
-               CURRENT_STATE = 0
-               console.log('done connecting ',name)
-                // Create a biquadfilter
-                // var biquadFilter = audioCtx.createBiquadFilter();
-                // biquadFilter.type = "lowshelf";
-                // biquadFilter.frequency.value = 1000;
-                // biquadFilter.gain.value = range.value;
+          // Create a MediaStreamAudioSourceNode
+          // Feed the HTMLMediaElement into it
+          var source = context.createMediaStreamSource(stream);
+          source.connect(analyser)
+          CURRENT_STATE = 0
+          console.log('done connecting ', name)
+            // Create a biquadfilter
+            // var biquadFilter = audioCtx.createBiquadFilter();
+            // biquadFilter.type = "lowshelf";
+            // biquadFilter.frequency.value = 1000;
+            // biquadFilter.gain.value = range.value;
 
-                // connect the AudioBufferSourceNode to the gainNode
-                // and the gainNode to the destination, so we can play the
-                // music and adjust the volume using the mouse cursor
-                // source.connect(biquadFilter);
-                // biquadFilter.connect(audioCtx.destination);
+          // connect the AudioBufferSourceNode to the gainNode
+          // and the gainNode to the destination, so we can play the
+          // music and adjust the volume using the mouse cursor
+          // source.connect(biquadFilter);
+          // biquadFilter.connect(audioCtx.destination);
 
-                // Get new mouse pointer coordinates when mouse is moved
-                // then set new gain value
+          // Get new mouse pointer coordinates when mouse is moved
+          // then set new gain value
 
-                // range.oninput = function() {
-                //     biquadFilter.gain.value = range.value;
-                // }
+          // range.oninput = function() {
+          //     biquadFilter.gain.value = range.value;
+          // }
 
-            },
+        },
 
-            // Error callback
-            function(err) {
-               console.log('The following gUM error occured: ' + err);
-            }
-         );
+        // Error callback
+        function (err) {
+          console.log('The following gUM error occured: ' + err);
+        }
+      );
 
     }
 
@@ -275,7 +273,7 @@ function agent(opts) {
       local_osc.frequency.value = (idx * spread) + initialFreq
 
       var local_gain = context.createGain()
-      local_gain.gain.value = 1.0 / (n_osc-1)
+      local_gain.gain.value = 1.0 / (n_osc - 1)
 
       // var local_filter = context.createBiquadFilter()
       // local_filter.type = 'bandpass'
@@ -290,14 +288,14 @@ function agent(opts) {
 
       local_gain.connect(localAnalyser)
       local_gain.connect(master_gain)
-      // local_gain.connect(context.destination)
+        // local_gain.connect(context.destination)
 
       local_osc.start(0)
-      // local_osc.noteOn(100)
+        // local_osc.noteOn(100)
 
       osc_bank.push(local_osc)
       gain_bank.push(local_gain)
-      // filter_bank.push(local_filter)
+        // filter_bank.push(local_filter)
 
     }
 
@@ -322,12 +320,6 @@ function agent(opts) {
       gainNode.connect(analyser)
     })
 
-    // var other_filter_bank = other_agent.get_filter_bank()
-    //
-    // other_filter_bank.forEach(function(filterNode){
-    //   filterNode.connect(analyser)
-    // })
-
     getBuffer()
 
     setTimeout(function () {
@@ -337,7 +329,7 @@ function agent(opts) {
 
   }
 
-  function set_message(msg){
+  function set_message(msg) {
     MESSAGE = msg
     MESSAGE_IDX = 0
   }
@@ -346,37 +338,39 @@ function agent(opts) {
     return n_osc
   }
 
-  function get_groups() {
-    return grouped_peak_ranges
+
+  function get_analyser() {
+    return analyser
   }
 
   function getBuffer() {
+    console.log('getting buffer ' + name)
     analyser.getByteFrequencyData(analyserDataArray)
     return analyserDataArray
-  }
-  function get_local_frequency_data_buffer() {
-    localAnalyser.getByteFrequencyData(localAnalyserDataArray)
-    return localAnalyserDataArray
   }
 
   function get_gain_bank() {
     return gain_bank
   }
 
+  function get_groups() {
+    return grouped_peak_ranges
+  }
+
   function get_filter_bank() {
     return filter_bank
   }
 
-
-  function get_analyser() {
-    return analyser
+  function get_local_frequency_data_buffer() {
+    localAnalyser.getByteFrequencyData(localAnalyserDataArray)
+    return localAnalyserDataArray
   }
 
 
   function read_byte_from_signal() {
 
     var ranges = validate_ranges()
-    // console.log(ranges)
+      // console.log(ranges)
 
     var binary_string = ''
     for (var i = 0; i < 8; i++) {
@@ -391,23 +385,21 @@ function agent(opts) {
 
   }
 
-
   function read_byte_array_from_signal(byte_count) {
 
     var return_array = ''
 
     var ranges = validate_ranges()
-    // console.log(ranges)
 
-    for(var byte_count_idx = 0; byte_count_idx < byte_count; byte_count_idx++){
+    for (var byte_count_idx = 0; byte_count_idx < byte_count; byte_count_idx++) {
 
       var offset = 0
-      if(byte_count_idx > 0){
-        offset += 2 + (byte_count_idx*8)
+      if (byte_count_idx > 0) {
+        offset += 2 + (byte_count_idx * 8)
       }
 
       var binary_string = ''
-      for (var i = 0+offset; i < 8+offset; i++) {
+      for (var i = 0 + offset; i < 8 + offset; i++) {
         if (ranges[i]) {
           binary_string += '1'
         } else {
@@ -417,9 +409,9 @@ function agent(opts) {
 
       var byte = parseInt(binary_string, 2)
       return_array += String.fromCharCode(byte)
+
     }
 
-    // console.log(return_array)
     return return_array
 
   }
@@ -428,9 +420,11 @@ function agent(opts) {
 
     console.log('registering peak ranges ' + name)
 
+
     getBuffer()
     console.log(analyserDataArray)
 
+    console.log('finding mean of buffer')
     // push on to new array for sorting
     var d = []
     for (var i = 0; i < bufferLength; i++) {
@@ -445,15 +439,14 @@ function agent(opts) {
 
     mean = d[Math.floor(d.length / 2)]
 
-    //
+    // searching through the buffer
+
     peak_ranges = []
     for (var i = 0; i < bufferLength; i++) {
       if (analyserDataArray[i] > mean) {
         peak_ranges.push(i)
       }
     }
-
-    // window.p = peak_ranges
 
     group_peak_ranges()
 
@@ -524,9 +517,9 @@ function agent(opts) {
     gain_bank[channel].gain.value = value
   }
 
-  function set_volume(v){
-    if(v >= 1){
-      v=1.0
+  function set_volume(v) {
+    if (v >= 1) {
+      v = 1.0
     }
     master_gain.gain.value = v
   }
@@ -573,28 +566,28 @@ function agent(opts) {
       if (c === '0') {
         set_gain(idx, 0)
       } else {
-        set_gain(idx, 1 / (n_osc-2))
+        set_gain(idx, 1 / (n_osc - 2))
       }
     })
 
   }
 
-  function encode_string(string){
+  function encode_string(string) {
 
     var bytes = string.split('')
-    // console.log(string,bytes)
+      // console.log(string,bytes)
 
-    while(bytes.length < BYTES_TO_ENCODE){
+    while (bytes.length < BYTES_TO_ENCODE) {
       bytes.push('+')
     }
 
     LAST_SENT_MESSAGE = CURRENT_ENCODED_MESSAGE
     CURRENT_ENCODED_MESSAGE = bytes.join('')
 
-    bytes.forEach(function(byte,byte_idx){
+    bytes.forEach(function (byte, byte_idx) {
 
       var offset = (byte_idx * 8) + 2
-      if(byte_idx === 0){
+      if (byte_idx === 0) {
         offset = 0
       }
 
@@ -606,9 +599,9 @@ function agent(opts) {
 
       chars.forEach(function (c, idx) {
         if (c === '0') {
-          set_gain(idx+offset, 0)
+          set_gain(idx + offset, 0)
         } else {
-          set_gain(idx+offset, 1 / n_osc)
+          set_gain(idx + offset, 1 / n_osc)
         }
       })
 
@@ -641,8 +634,8 @@ function agent(opts) {
 
   function get_state() {
     return {
-      buffer: getBuffer(),
-      local_buffer: get_local_frequency_data_buffer(),
+      buffer: analyserDataArray,
+      // local_buffer: get_local_frequency_data_buffer(),
       RX_BUFFER: RX_BUFFER,
       CURRENT_STATE: CURRENT_STATE,
       SYNC_COUNT: SYNC_COUNT,
@@ -656,7 +649,7 @@ function agent(opts) {
     }
   }
 
-  function reset_baud_count(){
+  function reset_baud_count() {
     RX_BUFFER = ''
     CONNECTED_AT = Date.now()
   }
@@ -668,6 +661,7 @@ function agent(opts) {
     getBuffer: getBuffer,
     get_analyser: get_analyser,
     get_encoded_byte_array: get_encoded_byte_array,
+    get_osc_bank: get_osc_bank,
     get_filter_bank: get_filter_bank,
     get_gain_bank: get_gain_bank,
     get_groups: get_groups,

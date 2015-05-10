@@ -13,7 +13,7 @@ module.exports = function (grunt) {
         options: {
           port: 8000,
           keepalive: true,
-          hostname: 'localhost',
+          hostname: '*',
           protocol: 'https',
           key: grunt.file.read('./livereload.key').toString(),
           cert: grunt.file.read('./livereload.crt').toString(),
@@ -33,6 +33,19 @@ module.exports = function (grunt) {
         dest: 'build/bundle.js',
         files: {
           'build/bundle.js': ['**/*.js'],
+        },
+        options: {
+          transform: ['brfs'],
+          browserifyOptions: {
+            debug: true
+          }
+        }
+      },
+      learning: {
+        src: 'js/learning_main.js',
+        dest: 'build/learning_bundle.js',
+        files: {
+          'build/learning_bundle.js': ['**/*.js'],
         },
         options: {
           transform: ['brfs'],
