@@ -90,6 +90,8 @@ function view_controller(div_id) {
       circles.push(circle)
     }
 
+    return;
+
     // sync count
     div_sync_count = parent.append('div')
       .attr('class', 'col-md-4')

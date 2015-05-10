@@ -21,6 +21,20 @@ function modem(options){
   var name = options.name
   var type = options.type
 
+
+  var programmed_freqs = (function create_frequencies(){
+
+    var n_oscs = 10
+    var return_array = []
+    do{
+      return_array.push(n_oscs*1000 + 1000)
+    } while(--n_oscs)
+    return return_array
+  })()
+
+  programmed_freqs = [1000,2000]
+
+
   // transmitter
   var osc_bank = []
   var filter_bank = []
@@ -29,7 +43,7 @@ function modem(options){
 
   // mic
 
-  function setup_transmitter(n_osc){
+  function setup_transmitter(){
 
     if (type === 'mic') {
 
@@ -66,21 +80,18 @@ function modem(options){
     }
 
     master_gain = context.createGain()
-    master_gain.gain.value = 1.0
+    master_gain.gain.value = 0.0
 
-    for(var osc_idx = 0; osc_idx < n_osc; osc_idx++){
-
+    programmed_freqs.forEach(function(hz){
       var osc = context.createOscillator()
 
       osc.type = 'sine'
-      osc.frequency.value = 4096
+      osc.frequency.value = hz
 
       var filter = context.createBiquadFilter()
       var gain = context.createGain()
 
       osc.start(0)
-
-      // gain.gain.value = 0
 
       osc.connect(gain)
       gain.connect(master_gain)
@@ -88,12 +99,9 @@ function modem(options){
       osc_bank.push(osc)
       filter_bank.push(filter)
       gain_bank.push(gain)
-
-    }
+    })
 
   }
-
-
 
   // encoder
 
@@ -104,23 +112,47 @@ function modem(options){
   var analysisTimeBuffer
   var analysisFrequencyBuffer
 
+  var peaks = []
+
   function setup_analyser(){
 
     console.log(id + '\t' + 'setting up analyser')
 
     analyser = context.createAnalyser()
-    analyser.fftSize = 512
+    analyser.fftSize = 1024
     analyser.smoothingTimeConstant = 0.00
 
     analysisTimeBuffer = new Uint8Array(analyser.frequencyBinCount)
     analysisFrequencyBuffer = new Uint8Array(analyser.frequencyBinCount)
+
+    osc_bank.forEach(function(){
+      peaks.push(0)
+    })
 
   }
 
   function analyse(){
     analyser.getByteTimeDomainData(analysisTimeBuffer)
     analyser.getByteFrequencyData(analysisFrequencyBuffer)
+    fill_peaks()
   }
+
+  function fill_peaks(){
+
+    programmed_freqs.forEach(function(hz,osc_idx){
+      peaks[osc_idx] = getFrequencyValue(hz)
+    })
+
+    function getFrequencyValue(frequency) {
+      var nyquist = context.sampleRate/2;
+      var index = Math.round(frequency/nyquist * analysisFrequencyBuffer.length);
+      return analysisFrequencyBuffer[index];
+    }
+
+    window.gf = getFrequencyValue
+
+  }
+
 
   function get_interfaces(){
     return {
@@ -128,6 +160,7 @@ function modem(options){
       gain_bank: gain_bank,
       master_gain: master_gain,
       osc_bank: osc_bank,
+      peaks: peaks
     }
   }
 
@@ -145,7 +178,5 @@ function modem(options){
     get_buffers: get_buffers,
     get_interfaces: get_interfaces
   }
-
-
 
 }
