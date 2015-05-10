@@ -1,0 +1,2 @@
+- [x] live encoding bytes in script processor node
+- [ ] generate entire buffer from input array

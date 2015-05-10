@@ -1,4 +1,4 @@
-var scriptProcessor
+window.scriptProcessor
 window.start_time
 
 window.onload = function () {
@@ -53,62 +53,6 @@ window.onload = function () {
   display_bob.connect(modem)
   display_bob.setup_svg()
 
-  var bufferSize = 16384
-  scriptProcessor = context.createScriptProcessor(bufferSize, 1, 1)
-
-  var g = context.createGain()
-  g.gain.value = 0.2
-  ifaces.master_gain.connect(scriptProcessor)
-  scriptProcessor.connect(g)
-  g.connect(ifaces.analyser)
-    // scriptProcessor.connect(context.destination)
-
-  // Give the node a function to process audio events
-
-  var freqs = [1000, 2000]
-
-  scriptProcessor.onaudioprocess = function (audioProcessingEvent) {
-
-    console.log('here' + audioProcessingEvent.outputBuffer.length)
-
-    // The input buffer is the song we loaded earlier
-    var inputBuffer = audioProcessingEvent.inputBuffer;
-
-    // The output buffer contains the samples that will be modified and played
-    var outputBuffer = audioProcessingEvent.outputBuffer;
-
-    // Loop through the output channels (in this case there is only one)
-    for (var channel = 0; channel < outputBuffer.numberOfChannels; channel++) {
-
-      var inputData = inputBuffer.getChannelData(channel);
-      var outputData = outputBuffer.getChannelData(channel);
-
-      var multi
-      for (var sample = 0; sample < inputBuffer.length; sample++) {
-
-        outputData[sample] = 0
-
-        freqs.forEach(function(hz){
-          multi = (context.sampleRate/2) / hz / Math.PI
-          outputData[sample] += Math.sin(sample_idx / multi)
-        })
-
-        outputData[sample] *= 1/freqs.length
-
-        sample_idx++
-
-        if(sample_idx % (44100/2) === 0){
-          freqs[1] = Math.random() * 1000 + 3000
-          console.log(Date.now()-_t)
-          _t = Date.now()
-        }
-
-      }
-
-    }
-
-
-  }
 
   var use_interval = false
   var interval_time = 50
@@ -148,16 +92,6 @@ window.onload = function () {
     if (!use_interval) {
       window.requestAnimationFrame(interval_tick)
     }
-
-
-    ifaces.gain_bank.forEach(function (gb) {
-      if (Math.random() > 0.5) {
-        gb.gain.value = 0
-      } else {
-        gb.gain.value = 0.1
-      }
-    })
-
 
   }
 
