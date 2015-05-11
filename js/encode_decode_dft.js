@@ -2,13 +2,13 @@ var assert = require('assert').equal
 
 module.exports = function(){
 
-  var message = '011001000001101010101101010101010010111101'
+  var message = '011001011101101010101101010101010010111101'
   console.log('message length', message.length)
 
   console.log(context)
 
   var n_channels = 1
-  var n_seconds = 5.0
+  var n_seconds = 2.0
   var sample_rate = context.sampleRate
 
   var n_samples = n_seconds * sample_rate
