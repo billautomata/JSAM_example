@@ -10,12 +10,67 @@ module.exports = function(){
       message+=amessage
   }
 
-
   console.log('message length', message.length)
 
+  // var byte_string = require('./example_wav_b64.js')
+  // // console.log(byte_string)
+  // var preloaded_buffer = new ArrayBuffer(byte_string.length*2)
+  // var preloaded_buffer_view = new Uint16Array(preloaded_buffer,0,preloaded_buffer.length)
+  // for(var i = 0; i < byte_string.length; i++){
+  //   preloaded_buffer_view[i] = byte_string.charCodeAt(i)
+  //   // console.log(preloaded_buffer_view[i])
+  // }
+  //
+  // console.log(preloaded_buffer_view.length)
+  //
+  // console.log(context)
+  //
+  // context.decodeAudioData(preloaded_buffer,function(b,q,d){
+  //   console.log(b,q,d)
+  //
+  //   console.log('here')
+  //   console.log(b)
+  //   var s = contex.createBufferSource()
+  //   s.buffer = b
+  //   s.connect(context.destination)
+  //   s.start(0)
+  //
+  // }, function(b,q,d){
+  //
+  //   console.log(b,q,d)
+  // })
 
 
-  console.log(context)
+  function getData() {
+    window.source = context.createBufferSource();
+    request = new XMLHttpRequest();
+
+    request.open('GET', 'example.wav', true);
+
+    request.responseType = 'arraybuffer';
+
+
+    request.onload = function() {
+      var audioData = request.response;
+
+      context.decodeAudioData(audioData, function(buffer) {
+        console.log(buffer)
+          source.buffer = buffer;
+
+          source.connect(context.destination);
+          // source.loop = true;
+          source.start(0)
+        },
+
+        function(e){"Error with decoding audio data" + e.err});
+
+    }
+
+    request.send();
+  }
+
+
+  getData(0)
 
   var n_channels = 1
   var n_seconds = 2.0
