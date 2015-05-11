@@ -5,7 +5,18 @@ window.onload = function () {
 
   var Modem = require('./modem.js')
 
-  require('./encode_decode_dft.js')()
+  if (window.screen.width < 400) {
+
+    d3.select('div#mobile_begin').on('click', function () {
+      console.log('zomg wtf')
+      d3.select(this).style('display', 'none')
+      require('./encode_decode_dft.js')()
+    })
+  } else {
+    d3.select('div#mobile_begin').remove()
+    require('./encode_decode_dft.js')()
+  }
+
 
   return;
 
