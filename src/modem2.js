@@ -16,26 +16,35 @@ module.exports.modem = Modem
 
 function Modem(config) {
 
-  // encoder
+  var baud = config.baud || 4
 
-  var n_channels
+  var n_channels = 1
+  var sample_rate = context.sampleRate
+
+  var samples_per_bit = sample_rate / baud
+
   var n_seconds
-  var sample_rate
   var n_samples
+
   var sample_to_message_idx
   var message
 
+  // encoder
   function encode(_message) {
 
     message = _message
 
-    n_channels = 1
-    n_seconds = 2.0
-    sample_rate = context.sampleRate
 
-    n_samples = n_seconds * sample_rate
+    console.log('samples per bit',samples_per_bit)
+
+
+
+    // n_channels = 1
+    n_samples = samples_per_bit * message.length
+    n_seconds = n_samples / sample_rate
 
     console.log('n_samples', n_samples)
+    console.log('n_seconds', n_seconds)
     console.log('target baud', message.length / n_seconds)
 
     sample_to_message_idx = d3.scale.linear().domain([0, n_samples]).range([0, message.length])
@@ -84,7 +93,7 @@ function Modem(config) {
 
       offset = Math.floor(offset)
       // console.log('offset', offset)
-        // console.log('spare_room',Math.abs(offset+dft_size - dataArray.length) - dft_size)
+      // console.log('spare_room',Math.abs(offset+dft_size - dataArray.length) - dft_size)
 
       var dft_local_dataArray = new Float32Array(dft_size)
       for (var sample = 0; sample < dft_local_dataArray.length; sample++) {
@@ -95,11 +104,6 @@ function Modem(config) {
       }
 
       dft.forward(dft_local_dataArray)
-
-      var l = dft.spectrum.length
-      for (var spectrum_idx = 0; spectrum_idx < l; spectrum_idx++) {
-        // console.log(spectrum_idx,dft.spectrum[spectrum_idx])
-      }
 
       console.timeEnd('running dft')
 
@@ -129,10 +133,6 @@ function Modem(config) {
     return decoded_message
 
   }
-
-
-
-
 
   return {
     encode: encode,

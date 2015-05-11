@@ -18,7 +18,9 @@ var Modem = require('./modem2.js')
 
 function begin(){
 
-  var config = {}
+  var config = {
+    baud: 1
+  }
   var modem = Modem.modem(config)
 
   var encoded_message = '01011'
@@ -27,6 +29,32 @@ function begin(){
   var decoded_message = modem.decode(AudioBuffer,encoded_message.length)
 
   console.log(encoded_message,decoded_message)
+
+  window.recorder = new Recorder(context.createGain(), {numChannels: 1})
+
+  recorder.setBuffer([AudioBuffer.getChannelData(0)], function(){
+    console.log('done setting buffer')
+  })
+
+  setTimeout(createDownloadLink,100)
+
+  function createDownloadLink() {
+    recorder && recorder.exportWAV(function (blob) {
+      var url = URL.createObjectURL(blob);
+      var li = document.createElement('div');
+      var au = document.createElement('audio');
+      var hf = document.createElement('a');
+
+      au.controls = true;
+      au.src = url;
+      hf.href = url;
+      hf.download = new Date().toISOString() + '.wav';
+      hf.innerHTML = '<br>'+hf.download;
+      li.appendChild(au);
+      li.appendChild(hf);
+      d3.select('body').append('div').node().appendChild(li);
+    });
+  }
 
   window.m = modem
 

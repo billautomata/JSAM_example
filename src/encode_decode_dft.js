@@ -164,7 +164,9 @@ module.exports = function(){
 
   console.log(Object.keys(audio_buffer))
 
-  recorder.setBuffer([dataArray])
+  recorder.setBuffer([dataArray], function(){
+    console.log('done setting buffer')
+  })
 
   setTimeout(createDownloadLink,100)
 
