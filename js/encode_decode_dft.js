@@ -2,8 +2,18 @@ var assert = require('assert').equal
 
 module.exports = function(){
 
-  var message = '011001011101101010101101010101010010111101'
+  var assert = function(){}
+
+  var amessage = '011001011101101010101101010101010010111101'
+  var message
+  for(var i = 0; i < 10; i++){
+      message+=amessage
+  }
+
+
   console.log('message length', message.length)
+
+
 
   console.log(context)
 
