@@ -3,6 +3,8 @@ window.start_time
 
 window.onload = function () {
 
+  console.log('hello from learning main.js')
+
   var Modem = require('./modem.js')
 
   if (window.screen.width < 400) {

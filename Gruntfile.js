@@ -29,7 +29,7 @@ module.exports = function (grunt) {
 
     browserify: {
       main: {
-        src: 'js/main.js',
+        src: 'src/main.js',
         dest: 'build/bundle.js',
         files: {
           'build/bundle.js': ['**/*.js'],
@@ -41,24 +41,24 @@ module.exports = function (grunt) {
           }
         }
       },
-      learning: {
-        src: 'js/learning_main.js',
-        dest: 'build/learning_bundle.js',
-        files: {
-          'build/learning_bundle.js': ['**/*.js'],
-        },
-        options: {
-          transform: ['brfs'],
-          browserifyOptions: {
-            debug: true
-          }
-        }
-      }
+      // learning: {
+      //   src: 'src/learning_main.js',
+      //   dest: 'build/learning_bundle.js',
+      //   files: {
+      //     'build/learning_bundle.js': ['**/*.js'],
+      //   },
+      //   options: {
+      //     transform: ['brfs'],
+      //     browserifyOptions: {
+      //       debug: true
+      //     }
+      //   }
+      // }
     },
 
     watch: {
       everything: {
-        files: ['*.html','js/*.js', 'css/*.css'],
+        files: ['*.html','src/*.js', 'css/*.css'],
         tasks: ['browserify'],
         options: {
           livereload: {

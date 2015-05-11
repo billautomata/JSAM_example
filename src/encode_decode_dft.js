@@ -5,14 +5,11 @@ module.exports = function(){
   var assert = function(){}
 
   var amessage = '011001011101101010101101010101010010111101'
-  var message
-  for(var i = 0; i < 10; i++){
-      message+=amessage
-  }
+  var message = amessage
 
   console.log('message length', message.length)
 
-  // var byte_string = require('./example_wav_b64.js')
+  // var byte_string =z require('./example_wav_b64.js')
   // // console.log(byte_string)
   // var preloaded_buffer = new ArrayBuffer(byte_string.length*2)
   // var preloaded_buffer_view = new Uint16Array(preloaded_buffer,0,preloaded_buffer.length)
@@ -170,7 +167,7 @@ module.exports = function(){
   recorder.setBuffer([dataArray])
 
   setTimeout(createDownloadLink,100)
-  // createDownloadLink()
+
   window.createDownloadLink = function createDownloadLink() {
     recorder && recorder.exportWAV(function (blob) {
       var url = URL.createObjectURL(blob);
