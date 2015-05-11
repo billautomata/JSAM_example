@@ -2,7 +2,7 @@
 - [x] generate entire buffer from input array
 - [x] encode a buffer with shifting tones
 - [x] decode the buffer and provide spectral analysis
-- [ ] visualize waterfall over time
+- [x] visualize waterfall over time
 
 // how to encode arbitrary data in a web audio buffer
 // try to encode/decode the signal manually without fft analysis
