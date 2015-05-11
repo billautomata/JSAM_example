@@ -57,7 +57,7 @@ module.exports = function(){
         console.log(buffer)
           source.buffer = buffer;
 
-          source.connect(context.destination);
+          // source.connect(context.destination);
           // source.loop = true;
           source.start(0)
         },
