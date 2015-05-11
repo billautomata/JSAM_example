@@ -3,7 +3,11 @@ window.start_time
 
 window.onload = function () {
 
+  var Modem = require('./modem.js')
 
+  require('./encode_decode_dft.js')()
+
+  return;
 
   var sample_idx = 0
   start_time = 0
@@ -11,7 +15,7 @@ window.onload = function () {
 
   // console.log = function(){}
 
-  var Modem = require('./modem.js')
+  // var Modem = require('./modem.js')
   var View_Controller = require('./modem_view.js')
 
   var modem = Modem.modem({
@@ -27,23 +31,71 @@ window.onload = function () {
 
   var ifaces = modem.get_interfaces()
 
-  ifaces.gain_bank.forEach(function (b) {
-    b.gain.value = 0.1
-      // b.connect(ifaces.analyser)
-  })
-
   var analyser = ifaces.analyser
-  var freqDomain = new Float32Array(analyser.frequencyBinCount);
-  var freqDomainB = new Uint8Array(analyser.frequencyBinCount);
 
-  window.gf = function getFrequencyValue(frequency) {
-    analyser.getFloatFrequencyData(freqDomain);
-    analyser.getByteFrequencyData(freqDomainB);
 
-    var nyquist = context.sampleRate / 2;
-    var index = Math.round(frequency / nyquist * freqDomain.length);
-    return freqDomain[index];
+  // create very long buffer
+  var n_seconds = 1
+  var long_buf = context.createBuffer(1,n_seconds*44100,44100)
+  console.log(long_buf)
+  var channel_data = long_buf.getChannelData(0)
+
+  window.lb = long_buf
+  window.channel_data = channel_data
+
+  console.log(channel_data)
+
+  var programmed_freqs = [12000, 13000, 14000]
+
+  for(var i = 0; i < channel_data.length; i++){
+
+    programmed_freqs.forEach(function (hz, idx) {
+
+      if(i > channel_data.length / 2){
+        hz *= 0.5
+      }
+
+      multi = (context.sampleRate / 2) / hz / Math.PI
+
+      channel_data[i] += Math.sin(i / multi)
+
+    })
+    channel_data[i] *= 1 / (programmed_freqs.length + 1)
   }
+
+  var n_to_transfer = 1024*2
+  window.kk = new Float32Array(n_to_transfer)
+  for(var p = 0; p < n_to_transfer; p++){
+    window.kk[p] = channel_data[p]
+  }
+
+  var source = context.createBufferSource();
+  // set the buffer in the AudioBufferSourceNode
+  source.buffer = long_buf;
+  // connect the AudioBufferSourceNode to the
+  // destination so we can hear the sound
+  source.connect(analyser);
+  // start the source playing
+
+  source.loopStart = 0.1
+  source.loopEnd = 0.11
+  source.loop = true
+
+  source.start();
+
+  window.zomg = source
+
+  // var freqDomain = new Float32Array(analyser.frequencyBinCount);
+  // var freqDomainB = new Uint8Array(analyser.frequencyBinCount);
+  //
+  // window.gf = function getFrequencyValue(frequency) {
+  //   analyser.getFloatFrequencyData(freqDomain);
+  //   analyser.getByteFrequencyData(freqDomainB);
+  //
+  //   var nyquist = context.sampleRate / 2;
+  //   var index = Math.round(frequency / nyquist * freqDomain.length);
+  //   return freqDomain[index];
+  // }
 
   window.recorder = new Recorder(ifaces.master_gain)
 
@@ -53,39 +105,18 @@ window.onload = function () {
   display_bob.connect(modem)
   display_bob.setup_svg()
 
-
-  var use_interval = false
-  var interval_time = 50
+  var use_interval = true
+  var interval_time = 100
 
   window.interval
 
-  var mean = 180
+  var mean = 127
 
   var n_errors = 0
 
   function interval_tick() {
 
-    // console.log('////')
     modem.analyse()
-      //
-      // ifaces.peaks.forEach(function(peak_value,peak_idx){
-      //
-      //   if(ifaces.gain_bank[peak_idx].gain.value > 0 && peak_value <= mean){
-      //     console.log(peak_value)
-      //     console.log('err too low!!!!' + peak_idx+' '+n_errors)
-      //     n_errors ++
-      //   }
-      //   if(ifaces.gain_bank[peak_idx].gain.value === 0.0 && peak_value > mean){
-      //     console.log(peak_value)
-      //     console.log('err too high!!!!' + peak_idx+' '+n_errors)
-      //     n_errors ++
-      //   }
-      //
-      // })
-
-    // console.log(ifaces.peaks)
-    // var peaks = modem.get_interfaces().peaks
-
 
     display_bob.tick(true)
 

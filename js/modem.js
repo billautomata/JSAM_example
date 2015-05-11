@@ -21,18 +21,9 @@ function modem(options) {
   var name = options.name
   var type = options.type
 
+  var dft_size = 2048
 
-  var programmed_freqs = (function create_frequencies() {
-
-    var n_oscs = 10
-    var return_array = []
-    do {
-      return_array.push(n_oscs * 1000 + 1000)
-    } while (--n_oscs)
-    return return_array
-  })()
-
-  programmed_freqs = [1000, 2000, 3000, 4000, 5000]
+  var programmed_freqs = [1000, 2000]
 
   // transmitter
   var osc_bank = []
@@ -81,27 +72,6 @@ function modem(options) {
     master_gain = context.createGain()
     master_gain.gain.value = 0.0
 
-    // programmed_freqs.forEach(function(hz){
-    //   var osc = context.createOscillator()
-    //
-    //   osc.type = 'sine'
-    //   osc.frequency.value = hz
-    //
-    //   var filter = context.createBiquadFilter()
-    //   var gain = context.createGain()
-    //
-    //   osc.start(0)
-    //
-    //   osc.connect(gain)
-    //   gain.connect(master_gain)
-    //
-    //   osc_bank.push(osc)
-    //   filter_bank.push(filter)
-    //   gain_bank.push(gain)
-    // })
-
-
-
     ////////////////////////////////////////
     var sample_idx = 0
     var bufferSize = 16384
@@ -116,15 +86,12 @@ function modem(options) {
 
     // Give the node a function to process audio events
 
-    // var freqs = [1000, 2000, 3000, 4000, 5000, 6000]
-    var freqs_running_idx = [0, 0]
+
+    var dft_buffer = new Float32Array(dft_size)
 
     scriptProcessor.onaudioprocess = function (audioProcessingEvent) {
 
       console.log('here' + audioProcessingEvent.outputBuffer.length)
-
-      // The input buffer is the song we loaded earlier
-      var inputBuffer = audioProcessingEvent.inputBuffer;
 
       // The output buffer contains the samples that will be modified and played
       var outputBuffer = audioProcessingEvent.outputBuffer;
@@ -132,35 +99,35 @@ function modem(options) {
       // Loop through the output channels (in this case there is only one)
       for (var channel = 0; channel < outputBuffer.numberOfChannels; channel++) {
 
-        var inputData = inputBuffer.getChannelData(channel);
+        // var inputData = inputBuffer.getChannelData(channel);
         var outputData = outputBuffer.getChannelData(channel);
 
         var multi
-        for (var sample = 0; sample < inputBuffer.length; sample++) {
+        for (var sample = 0; sample < outputBuffer.length; sample++) {
 
           outputData[sample] = 0
 
           programmed_freqs.forEach(function (hz, idx) {
             multi = (context.sampleRate / 2) / hz / Math.PI
             outputData[sample] += Math.sin(sample_idx / multi)
-            freqs_running_idx[idx]++
           })
 
           outputData[sample] *= 1 / (programmed_freqs.length + 1)
 
+          dft_buffer[sample_idx%dft_size] = outputData[sample]
+
           sample_idx++
 
-          // determine what bits need to be encoded
-
-
         }
-
       }
 
+      // do fft on outputData
+      dft.forward(dft_buffer)
 
     }
 
-
+    // where I do I go?
+    
 
   }
 
@@ -169,6 +136,9 @@ function modem(options) {
   // receiver
 
   // decoder
+
+  var dft
+
   var analyser
   var analysisTimeBuffer
   var analysisFrequencyBuffer
@@ -176,6 +146,8 @@ function modem(options) {
   var peaks = []
 
   function setup_analyser() {
+
+    dft = new DFT(dft_size,44100)
 
     console.log(id + '\t' + 'setting up analyser')
 
@@ -186,7 +158,7 @@ function modem(options) {
     analysisTimeBuffer = new Uint8Array(analyser.frequencyBinCount)
     analysisFrequencyBuffer = new Uint8Array(analyser.frequencyBinCount)
 
-    osc_bank.forEach(function () {
+    programmed_freqs.forEach(function () {
       peaks.push(0)
     })
 
@@ -210,18 +182,16 @@ function modem(options) {
       return analysisFrequencyBuffer[index];
     }
 
-    window.gf = getFrequencyValue
-
   }
 
 
   function get_interfaces() {
     return {
       analyser: analyser,
-      gain_bank: gain_bank,
       master_gain: master_gain,
-      osc_bank: osc_bank,
-      peaks: peaks
+      peaks: peaks,
+      dft: dft,
+      dft_size: dft_size
     }
   }
 

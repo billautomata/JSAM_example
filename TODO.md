@@ -1,48 +1,34 @@
 ##todo
 
 - [ ] example AFSK mod/demod using script processor
-
-http://en.wikipedia.org/wiki/Bell_103_modem
-
-- [x] verify tolerances of baofeng
-  -[x] steep drop @ ~6k
-
-- [ ] encode to wav/mp3/cassette, json to cassette 
-
+- [ ] http://en.wikipedia.org/wiki/Bell_103_modem
+- [ ] encode to wav/mp3/cassette, json to cassette
 - [ ] extend to bit-level transfer
 - [ ] examine uneven frequency spread
 - [ ] load with configuration json
-
 - [ ] simulate interference
 - [ ] filter interference on microphone
   - [ ] use neural networks to decode
-
 - [x] byte verification routine
-
 - [ ] delay signaling changes
 - [ ] error rate calculation
-
 - [ ] generalize the IO
   - [ ] have multiple layers
   - [ ] AJAX over radio
-
-- [x] examine higher/lower fft rates
-
 - [ ] automatic timeout/reconnect
 - [ ] multiple streams on a single channel
 - [ ] broadcast mode
 - [ ] bbs
-
-
 - [ ] passive receiver mode
   -[ ] hardcode the bands
   -[ ] predict bands
 - [ ] ascii only mode
 - [ ] image transmission mode (PNG/JPEG/GIF)
-- [ ]
+- [x] verify tolerances of baofeng
+- [x] steep drop @ ~6k
+- [x] examine higher/lower fft rates
 - [x] variable encoding rate
   - [ ] extend to the bit level
-
 
 - [encode to tape example]
 
