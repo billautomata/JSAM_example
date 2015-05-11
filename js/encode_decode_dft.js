@@ -87,26 +87,26 @@ module.exports = function(){
     return [dft.spectrum[12],dft.spectrum[23],dft.spectrum[116]]
 
   }
-
-  for(var letter_idx = 0; letter_idx < message.length; letter_idx++){
-    console.log(letter_idx,message[letter_idx])
-
-    var result = run_dft(sample_to_message_idx.invert(letter_idx))
-
-    console.log(result)
-
-    if(message[letter_idx] === '0'){
-      assert(result[0] > 0.2, true)
-      assert(result[1] < 0.2, true)
-      assert(result[2] > 0.2, true)
-    } else {
-      assert(result[0] < 0.2, true)
-      assert(result[1] > 0.2, true)
-      assert(result[2] < 0.2, true)
-    }
-
-
-  }
+  //
+  // for(var letter_idx = 0; letter_idx < message.length; letter_idx++){
+  //   console.log(letter_idx,message[letter_idx])
+  //
+  //   var result = run_dft(sample_to_message_idx.invert(letter_idx))
+  //
+  //   console.log(result)
+  //
+  //   if(message[letter_idx] === '0'){
+  //     assert(result[0] > 0.2, true)
+  //     assert(result[1] < 0.2, true)
+  //     assert(result[2] > 0.2, true)
+  //   } else {
+  //     assert(result[0] < 0.2, true)
+  //     assert(result[1] > 0.2, true)
+  //     assert(result[2] < 0.2, true)
+  //   }
+  //
+  //
+  // }
 
   window.recorder = new Recorder(context.createGain(), {numChannels: 1})
 
