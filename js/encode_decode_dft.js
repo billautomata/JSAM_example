@@ -2,17 +2,19 @@ var assert = require('assert').equal
 
 module.exports = function(){
 
-  var message = '011001'
+  var message = '011001000001101010101101010101010010111101'
+  console.log('message length', message.length)
 
   console.log(context)
 
   var n_channels = 1
-  var n_seconds = 1.0
+  var n_seconds = 5.0
   var sample_rate = context.sampleRate
 
   var n_samples = n_seconds * sample_rate
 
   console.log('n_samples',n_samples)
+  console.log('target baud', message.length/n_seconds)
 
   var sample_to_message_idx = d3.scale.linear().domain([0,n_samples]).range([0,message.length])
 
@@ -28,10 +30,7 @@ module.exports = function(){
 
     var message_idx = Math.floor(sample_to_message_idx(sample))
 
-    // console.log(message_idx)
-
     if(message[message_idx] === '0'){
-
       frequencies = [1000,10000]
     } else {
       frequencies = [2000]
@@ -50,10 +49,13 @@ module.exports = function(){
   var dft_size = 512
   var dft = new DFT(dft_size, sample_rate)
 
-
   function run_dft(offset){
 
-    console.log(offset+dft_size - dataArray.length)
+    console.time('running dft')
+
+    offset = Math.floor(offset)
+    console.log('offset', offset)
+    console.log('spare_room',Math.abs(offset+dft_size - dataArray.length) - dft_size)
 
     var dft_local_dataArray = new Float32Array(dft_size)
     for(var sample = 0; sample < dft_local_dataArray.length; sample++){
@@ -70,6 +72,8 @@ module.exports = function(){
       // console.log(spectrum_idx,dft.spectrum[spectrum_idx])
     }
 
+    console.timeEnd('running dft')
+
     return [dft.spectrum[12],dft.spectrum[23],dft.spectrum[116]]
 
   }
@@ -80,7 +84,6 @@ module.exports = function(){
     var result = run_dft(sample_to_message_idx.invert(letter_idx))
 
     console.log(result)
-
 
     if(message[letter_idx] === '0'){
       assert(result[0] > 0.2, true)
@@ -93,6 +96,32 @@ module.exports = function(){
     }
 
 
+  }
+
+  window.recorder = new Recorder(context.createGain(), {numChannels: 1})
+
+  console.log(Object.keys(audio_buffer))
+
+  recorder.setBuffer([dataArray])
+
+  setTimeout(createDownloadLink,100)
+  // createDownloadLink()
+  window.createDownloadLink = function createDownloadLink() {
+    recorder && recorder.exportWAV(function (blob) {
+      var url = URL.createObjectURL(blob);
+      var li = document.createElement('li');
+      var au = document.createElement('audio');
+      var hf = document.createElement('a');
+
+      au.controls = true;
+      au.src = url;
+      hf.href = url;
+      hf.download = new Date().toISOString() + '.wav';
+      hf.innerHTML = hf.download;
+      li.appendChild(au);
+      li.appendChild(hf);
+      d3.select('body').append('div').node().appendChild(li);
+    });
   }
 
 
