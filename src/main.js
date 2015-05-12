@@ -21,6 +21,7 @@ function begin(){
   var config = {
     baud: 1
   }
+  
   var modem = Modem.modem(config)
 
   var encoded_message = '01011'
